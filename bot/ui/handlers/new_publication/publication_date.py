@@ -44,7 +44,7 @@ async def back_to_new_publication(query: CallbackQuery, state: FSMContext) -> No
 @router.callback_query(
     MenuCallbackFactory.filter((F.action == Action.today) | (F.action == Action.tomorrow)),
     NewPublicationStates.publication_date)
-async def date_hot_buttons(query: CallbackQuery, state: FSMContext) -> None:
+async def publication_date_hot_buttons(query: CallbackQuery, state: FSMContext) -> None:
     """
     Обрабатывает "горячие" кнопки даты публикации.
     :param query:
@@ -58,7 +58,7 @@ async def date_hot_buttons(query: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.message(NewPublicationStates.publication_date)
-async def date_entry(message: Message, state: FSMContext) -> None:
+async def publication_date_entry(message: Message, state: FSMContext) -> None:
     """
     Проверяет формат введенной даты публикации.
     :param message:

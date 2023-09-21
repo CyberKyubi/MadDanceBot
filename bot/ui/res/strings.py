@@ -9,6 +9,8 @@ class Strings:
     publication_time = ("Напиши время публикации в формате <b>17.0(0)</b>\n"
                         "Для ближайшего времени используй <i>Hot Buttons</i>")
     publication_text = f"{Emoji.book} Пришли текст публикации:"
+    editing_publication_text = (f"{Emoji.pencil2} Как завершишь редактирование текста, "
+                                f"нажми \"Запланировать публикацию\" ")
 
 
 class Errors:

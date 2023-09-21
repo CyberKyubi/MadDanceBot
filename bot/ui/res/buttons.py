@@ -5,6 +5,8 @@ from .emoji import Emoji
 
 class Text:
     back = f"{Emoji.back} Назад"
+    back_to_main_menu = "Назад в главное меню"
+    cancel = "Отменить"
 
     new_publication = f"{Emoji.pencil2} Новая публикация"
     scheduled_publications = f"{Emoji.calendar} Запланированные публикации"
@@ -21,6 +23,7 @@ class Text:
 
 class Action(str, Enum):
     back = "back"
+    cancel = "cancel"
     back_to_main_menu = "back_to_main_menu"
 
     new_publication = "new_publication"

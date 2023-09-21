@@ -20,7 +20,7 @@ router = Router()
         (F.action == Action.eighteen_clock) | (F.action == Action.five_clock)
     ),
     NewPublicationStates.publication_time)
-async def time_hot_buttons(query: CallbackQuery, callback_data: MenuCallbackFactory, state: FSMContext) -> None:
+async def publication_time_hot_buttons(query: CallbackQuery, callback_data: MenuCallbackFactory, state: FSMContext) -> None:
     """
     Обрабатывает "горячие" кнопки времени публикации.
     :param query:
@@ -32,11 +32,11 @@ async def time_hot_buttons(query: CallbackQuery, callback_data: MenuCallbackFact
         print("now")
     else:
         hot_time = callback_data.value
-        await time_entry(query.message, state, hot_time)
+        await publication_time_entry(query.message, state, hot_time)
 
 
 @router.message(NewPublicationStates.publication_time)
-async def time_entry(message: Message, state: FSMContext, hot_time: str = None) -> None:
+async def publication_time_entry(message: Message, state: FSMContext, hot_time: str = None) -> None:
     """
     Проверяет формат введенного времени публикации.
     :param message:
@@ -50,4 +50,7 @@ async def time_entry(message: Message, state: FSMContext, hot_time: str = None) 
     except ValueError:
         await message.answer(Errors.invalid_time_format)
     else:
-        print(publication_time)
+        # todo save
+
+        await message.answer(Strings.publication_text)
+        await state.set_state(NewPublicationStates.publication_text)

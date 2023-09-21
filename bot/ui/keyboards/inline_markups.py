@@ -37,7 +37,7 @@ class NewPublicationInlineMarkups:
         builder = InlineKeyboardBuilder()
         builder.button(text=Text.today, callback_data=MenuCallbackFactory(action=Action.today))
         builder.button(text=Text.tomorrow, callback_data=MenuCallbackFactory(action=Action.tomorrow))
-        builder.button(text=Text.back, callback_data=MenuCallbackFactory(action=Action.back_to_main_menu))
+        builder.button(text=Text.back_to_main_menu, callback_data=MenuCallbackFactory(action=Action.back_to_main_menu))
         builder.adjust(2)
         return builder.as_markup()
 
@@ -62,5 +62,14 @@ class NewPublicationInlineMarkups:
             callback_data=MenuCallbackFactory(action=Action.five_clock, value=Value.five_clock))
 
         builder.button(text=Text.back, callback_data=MenuCallbackFactory(action=Action.back))
-        builder.adjust(1, 3, 1)
+        builder.button(text=Text.cancel, callback_data=MenuCallbackFactory(action=Action.cancel))
+        builder.adjust(1, 3, 2)
+        return builder.as_markup()
+
+    @staticmethod
+    def publication_text() -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder.button(text=Text.back, callback_data=MenuCallbackFactory(action=Action.back))
+        builder.button(text=Text.cancel, callback_data=MenuCallbackFactory(action=Action.cancel))
+        builder.adjust(2)
         return builder.as_markup()
