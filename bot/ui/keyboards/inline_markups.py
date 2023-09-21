@@ -4,7 +4,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from ui.res.buttons import Text, Action, Value
+from bot.ui.res.buttons import Text, Action, Value
 
 
 class MenuCallbackFactory(CallbackData, prefix="menu"):

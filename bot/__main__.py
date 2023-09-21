@@ -6,10 +6,10 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.redis import RedisStorage
 
-from settings import bot_config
-from mics.log_config import log_config
-from data.redis.Base import RedisBase
-from ui.handlers import setup_routers
+from bot.settings import bot_config
+from bot.mics.log_config import log_config
+from bot.data.redis.Base import RedisBase
+from bot.ui.handlers import setup_routers
 
 
 logging.getLogger(__name__)

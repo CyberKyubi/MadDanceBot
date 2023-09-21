@@ -4,10 +4,10 @@ from magic_filter import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from ui.res.buttons import Action
-from ui.res.strings import Strings
-from ui.keyboards.inline_markups import MenuCallbackFactory, BaseInlineMarkups
-from ui.states.state_machine import MenuNavigationStates, NewPublicationStates
+from bot.ui.res.buttons import Action
+from bot.ui.res.strings import Strings
+from bot.ui.keyboards.inline_markups import MenuCallbackFactory, BaseInlineMarkups
+from bot.ui.states.state_machine import MenuNavigationStates, NewPublicationStates
 
 
 router = Router()
