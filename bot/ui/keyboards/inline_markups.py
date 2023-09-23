@@ -63,7 +63,7 @@ class NewPublicationInlineMarkups:
 
         builder.button(text=Text.back, callback_data=MenuCallbackFactory(action=Action.back))
         builder.button(text=Text.cancel, callback_data=MenuCallbackFactory(action=Action.cancel))
-        builder.adjust(1, 3, 2)
+        builder.adjust(1, 3, 1, 2)
         return builder.as_markup()
 
     @staticmethod
@@ -72,4 +72,16 @@ class NewPublicationInlineMarkups:
         builder.button(text=Text.back, callback_data=MenuCallbackFactory(action=Action.back))
         builder.button(text=Text.cancel, callback_data=MenuCallbackFactory(action=Action.cancel))
         builder.adjust(2)
+        return builder.as_markup()
+
+    @staticmethod
+    def editing_publication_text() -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=Text.schedule_publication,
+            callback_data=MenuCallbackFactory(action=Action.schedule_publication))
+        builder.button(
+            text=Text.cancel,
+            callback_data=MenuCallbackFactory(action=Action.cancel))
+        builder.adjust(1)
         return builder.as_markup()

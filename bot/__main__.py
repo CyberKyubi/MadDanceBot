@@ -8,7 +8,7 @@ from aiogram.fsm.storage.redis import RedisStorage
 
 from bot.settings import bot_config
 from bot.mics.log_config import log_config
-from bot.data.redis.Base import RedisBase
+from bot.data.redis.base import RedisBase
 from bot.ui.handlers import setup_routers
 
 

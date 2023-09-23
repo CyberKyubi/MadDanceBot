@@ -29,19 +29,6 @@ async def new_publication(query: CallbackQuery, state: FSMContext) -> None:
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.back),
-    NewPublicationStates.publication_time)
-async def back_to_new_publication(query: CallbackQuery, state: FSMContext) -> None:
-    """
-    Возвращает к первому этапу - дате публикации.
-    :param query:
-    :param state:
-    :return:
-    """
-    await new_publication(query, state)
-
-
-@router.callback_query(
     MenuCallbackFactory.filter((F.action == Action.today) | (F.action == Action.tomorrow)),
     NewPublicationStates.publication_date)
 async def publication_date_hot_buttons(query: CallbackQuery, state: FSMContext) -> None:

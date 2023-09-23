@@ -8,7 +8,7 @@ from magic_filter import F
 from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action, Value
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
-from bot.ui.states.state_machine import MenuNavigationStates, NewPublicationStates
+from bot.ui.states.state_machine import NewPublicationStates
 
 
 router = Router()
@@ -52,5 +52,5 @@ async def publication_time_entry(message: Message, state: FSMContext, hot_time: 
     else:
         # todo save
 
-        await message.answer(Strings.publication_text)
+        await message.edit_text(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
         await state.set_state(NewPublicationStates.publication_text)

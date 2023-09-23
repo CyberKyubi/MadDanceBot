@@ -19,6 +19,7 @@ class Text:
     fifteen_clock = "15:00"
     eighteen_clock = "18:00"
     five_clock = f"{Emoji.thief} 5:15"
+    schedule_publication = f"{Emoji.calendar} Запланировать"
 
 
 class Action(str, Enum):
@@ -37,6 +38,7 @@ class Action(str, Enum):
     fifteen_clock = "fifteen_clock"
     eighteen_clock = "eighteen_clock"
     five_clock = "five_clock"
+    schedule_publication = "schedule_publication"
 
 
 class Value:

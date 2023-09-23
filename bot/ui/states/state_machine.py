@@ -9,3 +9,4 @@ class NewPublicationStates(StatesGroup):
     publication_date = State()
     publication_time = State()
     publication_text = State()
+    editing_publication_text = State()
