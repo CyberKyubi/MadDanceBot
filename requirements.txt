@@ -1,5 +1,9 @@
-aiogram==3.0.0
+aiogram==3.1.0
 pydantic==2.3.0
 pydantic-settings==2.0.3
 redis==5.0.0
+orjson==3.9.7  # for Redis
+ujson==5.8.0  # for Aiogram
+pytz==2023.3.post1
+
 

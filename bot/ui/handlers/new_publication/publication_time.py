@@ -5,6 +5,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from magic_filter import F
 
+from bot.data.redis.queries import RedisQueries
+from bot.mics.date_formatting import datetime_to_unix
 from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action, Value
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
@@ -20,27 +22,36 @@ router = Router()
         (F.action == Action.eighteen_clock) | (F.action == Action.five_clock)
     ),
     NewPublicationStates.publication_time)
-async def publication_time_hot_buttons(query: CallbackQuery, callback_data: MenuCallbackFactory, state: FSMContext) -> None:
+async def publication_time_hot_buttons(
+        query: CallbackQuery,
+        callback_data: MenuCallbackFactory,
+        state: FSMContext,
+        redis: RedisQueries
+) -> None:
     """
     Обрабатывает "горячие" кнопки времени публикации.
     :param query:
     :param callback_data:
     :param state:
+    :param redis:
     :return:
     """
     if callback_data.value == Value.now:
-        print("now")
+        model = await redis.get_new_publication()
+        print(model)
+
     else:
         hot_time = callback_data.value
-        await publication_time_entry(query.message, state, hot_time)
+        await publication_time_entry(query.message, state, redis, hot_time)
 
 
 @router.message(NewPublicationStates.publication_time)
-async def publication_time_entry(message: Message, state: FSMContext, hot_time: str = None) -> None:
+async def publication_time_entry(message: Message, state: FSMContext, redis: RedisQueries, hot_time: str = None) -> None:
     """
     Проверяет формат введенного времени публикации.
     :param message:
     :param state:
+    :param redis:
     :param hot_time:
     :return:
     """
@@ -50,7 +61,14 @@ async def publication_time_entry(message: Message, state: FSMContext, hot_time: 
     except ValueError:
         await message.answer(Errors.invalid_time_format)
     else:
-        # todo save
+        model = await redis.get_new_publication()
+        (year, month, day) = map(int, model.raw_date.split("-"))
+        publication_datetime = datetime(year=year, month=month, day=day, hour=publication_time.hour,
+                                        minute=publication_time.minute)
+        print(datetime_to_unix(publication_datetime))
+
+
+
 
         await message.edit_text(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
         await state.set_state(NewPublicationStates.publication_text)
