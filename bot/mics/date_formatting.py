@@ -11,4 +11,4 @@ def datetime_to_unix(raw_datetime: datetime) -> int:
     :param raw_datetime:
     :return:
     """
-    return int(timezone.localize(raw_datetime).strftime('%s'))
+    return int(raw_datetime.strftime('%s'))

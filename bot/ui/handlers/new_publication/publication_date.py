@@ -48,15 +48,13 @@ async def publication_date_hot_buttons(
     :return:
     """
     model = await redis.get_new_publication()
-    now = timezone.localize(datetime.now())
     match callback_data.action:
         case Action.today:
-            raw_date = now.replace(hour=0, minute=0, second=0, microsecond=0).date()
+            raw_date = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).date()
         case Action.tomorrow:
-            raw_date = (now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)).date()
+            raw_date = (datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)).date()
         case _:
-            raw_date = now.date()
-    print(datetime.now())
+            raw_date = datetime.now().date()
     model.raw_date = str(raw_date)
     await redis.save_new_publication(model)
 

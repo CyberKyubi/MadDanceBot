@@ -1,12 +1,13 @@
 from datetime import datetime, time
 
+import pytz
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from magic_filter import F
 
 from bot.data.redis.queries import RedisQueries
-from bot.mics.date_formatting import datetime_to_unix
+from bot.mics.date_formatting import datetime_to_unix, timezone
 from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action, Value
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
@@ -63,12 +64,10 @@ async def publication_time_entry(message: Message, state: FSMContext, redis: Red
     else:
         model = await redis.get_new_publication()
         (year, month, day) = map(int, model.raw_date.split("-"))
-        publication_datetime = datetime(year=year, month=month, day=day, hour=publication_time.hour,
-                                        minute=publication_time.minute)
-        print(datetime_to_unix(publication_datetime))
-
-
-
+        local_date = timezone.localize(
+            datetime(year=year, month=month, day=day, hour=publication_time.hour, minute=publication_time.minute))
+        publication_date = local_date.astimezone(pytz.utc)
+        model.datetime = datetime_to_unix(publication_date)
 
         await message.edit_text(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
         await state.set_state(NewPublicationStates.publication_text)

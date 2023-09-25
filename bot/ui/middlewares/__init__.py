@@ -8,4 +8,5 @@ def register_middlewares(dp: Dispatcher, redis: Redis):
 
     dp.message.middleware(RedisMiddleware(redis))
     dp.callback_query.middleware(RedisMiddleware(redis))
+    dp.edited_message.middleware(RedisMiddleware(redis))
     # dp.callback_query.middleware(CallbackAnswerMiddleware())
