@@ -1,8 +1,8 @@
 import pytz
-from datetime import datetime, time
+from datetime import datetime
 
 
-timezone = pytz.timezone("Europe/Samara")
+TIMEZONE = pytz.timezone("Europe/Samara")
 
 
 def datetime_to_unix(raw_datetime: datetime) -> int:
@@ -12,3 +12,9 @@ def datetime_to_unix(raw_datetime: datetime) -> int:
     :return:
     """
     return int(raw_datetime.strftime('%s'))
+
+
+def unix_to_datetime(unix: int) -> str:
+    utc_datetime = datetime.utcfromtimestamp(unix)
+    print(utc_datetime)
+    return utc_datetime.astimezone(TIMEZONE).strftime('%d.%m.%Y %H:%M:%S')

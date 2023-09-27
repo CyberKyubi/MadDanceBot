@@ -5,3 +5,7 @@ class Emoji:
     back = "◀️"
     thief = "🦹🏻"
     book = "📖"
+    clock9 = "🕘"
+    clock330 = "🕞"
+    x = "❌"
+    house = "🏡"

@@ -5,8 +5,8 @@ from .emoji import Emoji
 
 class Text:
     back = f"{Emoji.back} Назад"
-    back_to_main_menu = "Назад в главное меню"
-    cancel = "Отменить"
+    back_to_main_menu = f"{Emoji.house} Назад в главное меню"
+    cancel = f"{Emoji.x} Отменить"
 
     new_publication = f"{Emoji.pencil2} Новая публикация"
     scheduled_publications = f"{Emoji.calendar} Запланированные публикации"
@@ -20,6 +20,7 @@ class Text:
     eighteen_clock = "18:00"
     five_clock = f"{Emoji.thief} 5:15"
     schedule_publication = f"{Emoji.calendar} Запланировать"
+    schedule_next_publication = f"{Emoji.calendar} Запланировать следующую"
 
 
 class Action(str, Enum):
@@ -39,6 +40,7 @@ class Action(str, Enum):
     eighteen_clock = "eighteen_clock"
     five_clock = "five_clock"
     schedule_publication = "schedule_publication"
+    schedule_next_publication = "schedule_next_publication"
 
 
 class Value:

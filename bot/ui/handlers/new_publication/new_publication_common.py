@@ -4,6 +4,9 @@ from aiogram.types import CallbackQuery
 from aiogram.filters.state import StateFilter
 from magic_filter import F
 
+from bot.data.redis.queries import RedisQueries
+from bot.data.redis.models.new_publication import NewPublicationModel
+from bot.mics.date_formatting import unix_to_datetime
 from bot.ui.res.strings import Strings
 from bot.ui.res.buttons import Action
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
@@ -45,14 +48,32 @@ async def back_to_publication_time(query: CallbackQuery, state: FSMContext) -> N
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Action.cancel),
     StateFilter(NewPublicationStates))
-async def cancel(query: CallbackQuery, state: FSMContext) -> None:
+async def cancel(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
     """
     Отменяет заполнение новой публикации и возвращает в главное меню.
     :param query:
     :param state:
+    :param redis:
     :return:
     """
-    # todo delete
+    await redis.save_new_publication(NewPublicationModel())
 
     await query.message.edit_text(Strings.publication_canceled)
     await cmd_start(query.message, state)
+
+
+@router.callback_query(
+    MenuCallbackFactory.filter(F.action == Action.schedule_publication),
+    NewPublicationStates.editing_publication_text)
+async def schedule_publication(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
+    model = await redis.get_new_publication()
+    await query.message.edit_text(model.text)
+
+    # todo запланировать публикацию
+
+    publication_datetime = unix_to_datetime(model.datetime)
+    print(model.datetime)
+    await query.message.answer(
+        Strings.publication_info.format(datetime=publication_datetime),
+        reply_markup=NewPublicationInlineMarkups.schedule_publication())
+    await state.set_state(NewPublicationStates.schedule_publication)

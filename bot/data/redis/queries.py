@@ -42,5 +42,4 @@ class RedisQueries:
     async def save_new_publication(self, model: NewPublicationModel):
         await self._write(
             key=self._generate_key(RedisKeys.new_publication),
-            data=model.model_dump()
-        )
+            data=model.model_dump())

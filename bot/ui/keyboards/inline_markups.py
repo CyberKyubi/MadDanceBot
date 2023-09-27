@@ -85,3 +85,15 @@ class NewPublicationInlineMarkups:
             callback_data=MenuCallbackFactory(action=Action.cancel))
         builder.adjust(1)
         return builder.as_markup()
+
+    @staticmethod
+    def schedule_publication() -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder.button(
+            text=Text.schedule_next_publication,
+            callback_data=MenuCallbackFactory(action=Action.schedule_next_publication))
+        builder.button(
+            text=Text.back_to_main_menu,
+            callback_data=MenuCallbackFactory(action=Action.back_to_main_menu))
+        builder.adjust(1)
+        return builder.as_markup()

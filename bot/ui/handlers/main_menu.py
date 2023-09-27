@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from magic_filter import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -21,7 +21,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Action.back_to_main_menu),
-    NewPublicationStates.publication_date)
+    StateFilter(NewPublicationStates))
 async def back_to_main_menu(query: CallbackQuery, state: FSMContext) -> None:
     await query.message.edit_text(Strings.main_menu, reply_markup=BaseInlineMarkups.main_menu())
     await state.set_state(MenuNavigationStates.main_menu)
