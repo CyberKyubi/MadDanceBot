@@ -1,9 +1,13 @@
-aiogram==3.1.0
+aiogram==3.1.1
 pydantic==2.3.0
 pydantic-settings==2.0.3
-redis==5.0.0
+redis==5.0.1
 orjson==3.9.7  # for Redis
 ujson==5.8.0  # for Aiogram
 pytz==2023.3.post1
+APScheduler==3.10.4
+SQLAlchemy==2.0.21
+psycopg==3.1.12
+psycopg-binary==3.1.12
 
 

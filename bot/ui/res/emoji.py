@@ -9,3 +9,4 @@ class Emoji:
     clock330 = "🕞"
     x = "❌"
     house = "🏡"
+    pushpin = "📌"

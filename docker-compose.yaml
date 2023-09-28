@@ -1,18 +1,24 @@
 version: '3.8'
 
+x-pg-cred: &pg-cred
+  POSTGRES_DB: ${POSTGRES_DB}
+  POSTGRES_USER: ${POSTGRES_USER}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
 services:
-#  postgres:
-#    hostname: postgres
-#    image: postgres:15-alpine
-#    environment: *pg-cred
-#    volumes:
-#      - api_db:/var/lib/postgresql/data
-#    restart: on-failure
-#    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
-#      interval: 3s
-#      timeout: 5s
-#      retries: 3
+  postgres:
+    hostname: postgres
+    image: postgres:15-alpine
+    environment: *pg-cred
+    volumes:
+      - api_db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 3s
+      timeout: 5s
+      retries: 3
 
   redis:
     image: redis:7-alpine
@@ -26,8 +32,11 @@ services:
     stop_signal: SIGINT
     restart: on-failure
     env_file: .env
+    environment: *pg-cred
     depends_on:
+      - postgres
       - redis
 
 volumes:
   api_redis:
+  api_db:

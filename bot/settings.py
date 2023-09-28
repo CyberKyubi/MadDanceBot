@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from pydantic_settings import BaseSettings
-from pydantic import SecretStr, RedisDsn
+from pydantic import SecretStr, RedisDsn, PostgresDsn
 
 
 def get_project_root() -> Path:
@@ -12,6 +12,7 @@ def get_project_root() -> Path:
 class BotConfig(BaseSettings):
     token: SecretStr
     redis_dsn: RedisDsn
+    postgres_uri: PostgresDsn
 
     class Config:
         env_file = os.path.join(get_project_root(), '.env')

@@ -3,10 +3,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.filters.state import StateFilter
 from magic_filter import F
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.data.redis.queries import RedisQueries
 from bot.data.redis.models.new_publication import NewPublicationModel
-from bot.mics.date_formatting import unix_to_datetime
+from bot.data.db.queries import insert_new_publication
+from bot.mics.date_formatting import unix_timestamp_to_datetime
 from bot.ui.res.strings import Strings
 from bot.ui.res.buttons import Action
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
@@ -33,7 +36,7 @@ async def back_to_new_publication(query: CallbackQuery, state: FSMContext) -> No
 
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Action.back),
-    NewPublicationStates.publication_text)
+    NewPublicationStates.publication_title)
 async def back_to_publication_time(query: CallbackQuery, state: FSMContext) -> None:
     """
     Возвращает к второму этапу - времени публикации.
@@ -43,6 +46,20 @@ async def back_to_publication_time(query: CallbackQuery, state: FSMContext) -> N
     """
     await query.message.edit_text(Strings.publication_time, reply_markup=NewPublicationInlineMarkups.publication_time())
     await state.set_state(NewPublicationStates.publication_time)
+
+
+@router.callback_query(
+    MenuCallbackFactory.filter(F.action == Action.back),
+    NewPublicationStates.publication_text)
+async def back_to_publication_title(query: CallbackQuery, state: FSMContext) -> None:
+    """
+    Возвращает к заголовку публикации.
+    :param query:
+    :param state:
+    :return:
+    """
+    await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationInlineMarkups.publication_text())
+    await state.set_state(NewPublicationStates.publication_title)
 
 
 @router.callback_query(
@@ -65,14 +82,26 @@ async def cancel(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Action.schedule_publication),
     NewPublicationStates.editing_publication_text)
-async def schedule_publication(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
+async def schedule_publication(
+        query: CallbackQuery,
+        state: FSMContext,
+        redis: RedisQueries,
+        db: async_sessionmaker[AsyncSession]
+) -> None:
     model = await redis.get_new_publication()
+    await redis.save_new_publication(NewPublicationModel())
+    await insert_new_publication(db_async_session=db, new_publication=model)
+
+
+
+
     await query.message.edit_text(model.text)
+
 
     # todo запланировать публикацию
 
-    publication_datetime = unix_to_datetime(model.datetime)
-    print(model.datetime)
+    publication_datetime = unix_timestamp_to_datetime(model.unix_timestamp)
+    print(model.unix_timestamp)
     await query.message.answer(
         Strings.publication_info.format(datetime=publication_datetime),
         reply_markup=NewPublicationInlineMarkups.schedule_publication())

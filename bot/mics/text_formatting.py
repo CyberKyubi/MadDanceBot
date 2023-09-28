@@ -33,4 +33,14 @@ def format_text_with_html_entities(message: Message) -> str:
     return formatted_text
 
 
+def format_text(message: Message) -> str:
+    """
+    Форматирует текст, если в нем присутствуют HTML теги.
+    :param message:
+    :return:
+    """
+    text = message.text
+    if message.entities:
+        text = format_text_with_html_entities(message)
+    return text
 

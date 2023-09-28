@@ -3,13 +3,30 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from bot.data.redis.queries import RedisQueries
-from bot.mics.text_formatting import format_text_with_html_entities
+from bot.mics.text_formatting import format_text
 from bot.ui.res.strings import Strings
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups
 from bot.ui.states.state_machine import NewPublicationStates
 
 
 router = Router()
+
+
+@router.message(NewPublicationStates.publication_title)
+async def publication_title_entry(message: Message, state: FSMContext, redis: RedisQueries) -> None:
+    """
+    Обрабатывает ввод заголовка публикации.
+    :param message:
+    :param state:
+    :param redis:
+    :return:
+    """
+    model = await redis.get_new_publication()
+    model.title = format_text(message)
+    await redis.save_new_publication(model)
+
+    await message.answer(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
+    await state.set_state(NewPublicationStates.publication_text)
 
 
 @router.message(NewPublicationStates.publication_text)
@@ -22,12 +39,8 @@ async def publication_text_entry(message: Message, state: FSMContext, redis: Red
     :param redis:
     :return:
     """
-    text = message.text
-    if message.entities:
-        text = format_text_with_html_entities(message)
-
     model = await redis.get_new_publication()
-    model.text = text
+    model.text = format_text(message)
     model.message_id = message.message_id
     await redis.save_new_publication(model)
 
@@ -49,9 +62,5 @@ async def editing_publication_text(message: Message, redis: RedisQueries) -> Non
     if message.message_id != model.message_id:
         return
 
-    text = message.text
-    if message.entities:
-        text = format_text_with_html_entities(message)
-
-    model.text = text
+    model.text = format_text(message)
     await redis.save_new_publication(model)

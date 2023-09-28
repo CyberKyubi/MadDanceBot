@@ -8,6 +8,7 @@ class MenuNavigationStates(StatesGroup):
 class NewPublicationStates(StatesGroup):
     publication_date = State()
     publication_time = State()
+    publication_title = State()
     publication_text = State()
     editing_publication_text = State()
     schedule_publication = State()

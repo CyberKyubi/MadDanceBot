@@ -6,6 +6,7 @@ from aiogram.types import Message, CallbackQuery
 from magic_filter import F
 
 from bot.data.redis.queries import RedisQueries
+from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
@@ -21,13 +22,16 @@ router = Router()
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Action.schedule_next_publication),
     NewPublicationStates.schedule_publication)
-async def new_publication(query: CallbackQuery, state: FSMContext) -> None:
+async def new_publication(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
     """
     Запускает цепочку "Новая публикация". Первое - это дата публикации.
     :param query:
     :param state:
+    :param redis:
     :return:
     """
+    await redis.save_new_publication(NewPublicationModel())
+
     await query.message.edit_text(Strings.publication_date, reply_markup=NewPublicationInlineMarkups.publication_date())
     await state.set_state(NewPublicationStates.publication_date)
 
