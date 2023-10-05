@@ -1,0 +1,9 @@
+TOKEN=
+CHANNEL_ID=
+
+REDIS_DSN=redis://redis:6379/1
+
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=
+POSTGRES_URI=postgresql+psycopg://user:password@postgres:5432/db

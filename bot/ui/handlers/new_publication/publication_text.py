@@ -16,13 +16,14 @@ router = Router()
 async def publication_title_entry(message: Message, state: FSMContext, redis: RedisQueries) -> None:
     """
     Обрабатывает ввод заголовка публикации.
+    Автоматически заголовок оборачивается в жирный курсив.
     :param message:
     :param state:
     :param redis:
     :return:
     """
     model = await redis.get_new_publication()
-    model.title = format_text(message)
+    model.publication_title = format_text(message, bolditalic=True)
     await redis.save_new_publication(model)
 
     await message.answer(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
@@ -40,7 +41,7 @@ async def publication_text_entry(message: Message, state: FSMContext, redis: Red
     :return:
     """
     model = await redis.get_new_publication()
-    model.text = format_text(message)
+    model.publication_text = format_text(message)
     model.message_id = message.message_id
     await redis.save_new_publication(model)
 
@@ -51,7 +52,7 @@ async def publication_text_entry(message: Message, state: FSMContext, redis: Red
 
 
 @router.edited_message(NewPublicationStates.editing_publication_text)
-async def editing_publication_text(message: Message, redis: RedisQueries) -> None:
+async def editing_publication_text_entry(message: Message, redis: RedisQueries) -> None:
     """
     Обрабатывает изменение сообщения, отправленного только на предыдущем шаге.
     :param message:
@@ -62,5 +63,5 @@ async def editing_publication_text(message: Message, redis: RedisQueries) -> Non
     if message.message_id != model.message_id:
         return
 
-    model.text = format_text(message)
+    model.publication_text = format_text(message)
     await redis.save_new_publication(model)

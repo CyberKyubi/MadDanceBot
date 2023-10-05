@@ -2,10 +2,10 @@ from pydantic import BaseModel
 
 
 class NewPublicationModel(BaseModel):
+    publication_title: str = ""
+    publication_text: str = ""
     raw_date: str = ""
-    unix_timestamp: int = 0
+    publication_at: int = 0
     is_now: bool = False
-    title: str = ""
-    text: str = ""
 
     message_id: int = 0

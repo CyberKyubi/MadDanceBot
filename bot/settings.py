@@ -11,6 +11,8 @@ def get_project_root() -> Path:
 
 class BotConfig(BaseSettings):
     token: SecretStr
+    channel_id: int
+
     redis_dsn: RedisDsn
     postgres_uri: PostgresDsn
 

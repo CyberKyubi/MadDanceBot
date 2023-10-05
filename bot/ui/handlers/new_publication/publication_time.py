@@ -1,4 +1,5 @@
-from datetime import datetime, time, timedelta
+import logging
+from datetime import datetime, time
 
 import pytz
 from aiogram import Router
@@ -13,7 +14,6 @@ from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action, Value
 from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import NewPublicationStates
-
 
 router = Router()
 
@@ -44,18 +44,30 @@ async def publication_time_hot_buttons(
         model.is_now = True
         await redis.save_new_publication(model)
 
-        await query.message.edit_text(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
+        await query.message.edit_text(Strings.publication_text,
+                                      reply_markup=NewPublicationInlineMarkups.publication_text())
         await state.set_state(NewPublicationStates.publication_text)
+
+        logging.info(f"Пользователь | user_id = {query.from_user.id} | указал время = now")
     else:
         hot_time = callback_data.value
         await publication_time_entry(query.message, state, redis, hot_time)
 
 
 @router.message(NewPublicationStates.publication_time)
-async def publication_time_entry(message: Message, state: FSMContext, redis: RedisQueries, hot_time: str = None) -> None:
+async def publication_time_entry(
+        message: Message,
+        state: FSMContext,
+        redis: RedisQueries,
+        hot_time: str = None
+) -> None:
     """
-    Проверяет формат введенного времени публикации.
-    Дополнительная проверка на прошедшее время.
+    Собирает дату и время публикации.
+
+    Сначала валидация введенного времени, после из "сырой" даты (например строка, 2023-10-03) собирает локальный
+    datetime, и в конце приводит в UTC.
+
+    Собранную дату и время публикации в формате UTC, бот проверяет на прошедшее время.
     :param message:
     :param state:
     :param redis:
@@ -63,30 +75,35 @@ async def publication_time_entry(message: Message, state: FSMContext, redis: Red
     :return:
     """
     model = await redis.get_new_publication()
+
     try:
+        # Собирает время
         raw_time = datetime.strptime(message.text if not hot_time else hot_time, "%H.%M")
         publication_time = time(hour=raw_time.hour, minute=raw_time.minute)
 
-        (year, month, day) = map(int, model.raw_date.split("-"))
+        # Собирает дату и время
+        year, month, day = map(int, model.raw_date.split("-"))
         local_date = TIMEZONE.localize(
-            datetime(
-                year=year,
-                month=month,
-                day=day,
-                hour=publication_time.hour,
-                minute=publication_time.minute))
+            datetime(year=year, month=month, day=day, hour=publication_time.hour, minute=publication_time.minute))
         publication_date = local_date.astimezone(pytz.utc)
-        print(publication_date, datetime.now(tz=pytz.utc))
-        # todo время может быть будущем но в прошлом дне.
+
         if publication_date < datetime.now(tz=pytz.utc):
             raise PastPublicationTimeError(Errors.past_publication_time_error)
-    except ValueError:
-        await message.answer(Errors.invalid_time_format)
-    except PastPublicationTimeError:
-        await message.answer(Errors.past_publication_time_error)
+
+    except (ValueError, PastPublicationTimeError) as err:
+        err_msg = Errors.invalid_time_format if isinstance(err, ValueError) else Errors.past_publication_time_error
+        await message.answer(err_msg)
+        logging.error(f"Пользователь | user_id = {message.from_user.id} |"
+                      f" указал неверный формат времени или прошлое время = {message.text}")
     else:
-        model.unix_timestamp = datetime_to_unix_timestamp(publication_date)
+        model.publication_at = datetime_to_unix_timestamp(publication_date)
         await redis.save_new_publication(model)
 
-        await message.edit_text(Strings.publication_title, reply_markup=NewPublicationInlineMarkups.publication_text())
+        text, reply_markup = Strings.publication_title, NewPublicationInlineMarkups.publication_text()
+        if hot_time:
+            await message.edit_text(text, reply_markup=reply_markup)
+        else:
+            await message.answer(text, reply_markup=reply_markup)
         await state.set_state(NewPublicationStates.publication_title)
+
+        logging.info(f"Пользователь | user_id = {message.from_user.id} | дата публикации собрана = {publication_date}")

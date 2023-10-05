@@ -10,3 +10,4 @@ class Emoji:
     x = "❌"
     house = "🏡"
     pushpin = "📌"
+    exclamation = "❗️"
