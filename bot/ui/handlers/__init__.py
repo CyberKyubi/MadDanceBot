@@ -4,6 +4,7 @@ from aiogram import Router
 def setup_routers() -> Router:
     from . import main_menu
     from .new_publication import new_publication_common, publication_date, publication_time, publication_text
+    from .scheduled_publications import scheduled_publications
 
     router = Router()
 
@@ -12,5 +13,7 @@ def setup_routers() -> Router:
     router.include_router(publication_date.router)
     router.include_router(publication_time.router)
     router.include_router(publication_text.router)
+
+    router.include_router(scheduled_publications.router)
 
     return router

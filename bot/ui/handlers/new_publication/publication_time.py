@@ -12,7 +12,7 @@ from bot.mics.date_formatting import datetime_to_unix_timestamp, TIMEZONE
 from bot.mics.bot_exceptions import PastPublicationTimeError
 from bot.ui.res.strings import Strings, Errors
 from bot.ui.res.buttons import Action, Value
-from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
+from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import NewPublicationStates
 
 router = Router()
@@ -44,7 +44,7 @@ async def publication_time_hot_buttons(
         model.is_now = True
         await redis.save_new_publication(model)
 
-        await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationInlineMarkups.publication_text())
+        await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationSectionMarkups.publication_text())
         await state.set_state(NewPublicationStates.publication_title)
 
         logging.info(f"Пользователь | user_id = {query.from_user.id} | указал время = now")
@@ -98,7 +98,7 @@ async def publication_time_entry(
         model.publication_at = datetime_to_unix_timestamp(publication_date)
         await redis.save_new_publication(model)
 
-        text, reply_markup = Strings.publication_title, NewPublicationInlineMarkups.publication_text()
+        text, reply_markup = Strings.publication_title, NewPublicationSectionMarkups.publication_text()
         if hot_time:
             await message.edit_text(text, reply_markup=reply_markup)
         else:

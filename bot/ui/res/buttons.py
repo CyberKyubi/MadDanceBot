@@ -22,6 +22,9 @@ class Text:
     schedule_publication = f"{Emoji.calendar} Запланировать"
     schedule_next_publication = f"{Emoji.calendar} Запланировать следующую"
 
+    upcoming_publications = f"{Emoji.calendar} Будущие публикации"
+    overdue_publications = f"{Emoji.exclamation} Просроченные публикации"
+
 
 class Action(str, Enum):
     back = "back"
@@ -41,6 +44,9 @@ class Action(str, Enum):
     five_clock = "five_clock"
     schedule_publication = "schedule_publication"
     schedule_next_publication = "schedule_next_publication"
+
+    upcoming_publications = "upcoming_publications"
+    overdue_publications = "overdue_publications"
 
 
 class Value:

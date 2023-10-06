@@ -4,13 +4,6 @@ from .emoji import Emoji
 class Strings:
     main_menu = f"{Emoji.house} Главное меню <b>MadDanceBot</b>"
 
-    upcoming_publications = (f"{Emoji.book} Ближайшие публикаций:\n"
-                             "{}\n\n"
-                             "Подробно смотри в \"Запланированных публикациях\"\n\n")
-    no_upcoming_publications = f"{Emoji.book} Ближайших публикаций нет.\n\n"
-    overdue_publications = (f"{Emoji.exclamation} Просроченные публикации:\n"
-                            "{}")
-
     publication_date = (f"{Emoji.clock9} Укажи дату публикации в формате <i><b>20.09</b></i>\n\n"
                         "Для удобства воспользуйся <i>\"Горячими кнопками\"</i>")
     publication_time = (f"{Emoji.clock330} Укажи время публикации в формате <i><b>17.00</b></i>\n\n"
@@ -23,6 +16,15 @@ class Strings:
     publication_info = (f"{Emoji.book} Публикация запланирована:\n\n"
                         "{title}\n"
                         "   — <i>{datetime}</i>")
+
+    section_of_scheduled_publication = f"{Emoji.calendar} Раздел <b><i>\"Запланированные публикации\"</i></b>\n\n\n"
+    list_of_upcoming_publications = (f"{Emoji.book} Ближайшие на 7 дней:\n"
+                                     "{}\n")
+    list_of_overdue_publications = (f"{Emoji.exclamation} Просроченные:\n"
+                                    "{}\n\n")
+    elem_of_list_of_publications = ("{roman_num}.  {publication_title}\n"
+                                    "     <b>— <i>{publication_at}</i></b>\n\n")
+    no_upcoming_publications = f"{Emoji.book} Ближайших публикаций нет."
 
 
 class Errors:

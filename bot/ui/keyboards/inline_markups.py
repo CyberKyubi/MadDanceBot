@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 
 from aiogram.filters.callback_data import CallbackData
@@ -12,7 +13,13 @@ class MenuCallbackFactory(CallbackData, prefix="menu"):
     value: Optional[str] = None
 
 
-class BaseInlineMarkups:
+class CategoriesOfPublicationsEnum(int, Enum):
+    upcoming = 0
+    overdue = 1
+    both = 2
+
+
+class MainMenuMarkups:
 
     @staticmethod
     def main_menu() -> InlineKeyboardMarkup:
@@ -30,7 +37,7 @@ class BaseInlineMarkups:
         return builder.as_markup()
 
 
-class NewPublicationInlineMarkups:
+class NewPublicationSectionMarkups:
 
     @staticmethod
     def publication_date() -> InlineKeyboardMarkup:
@@ -92,6 +99,36 @@ class NewPublicationInlineMarkups:
         builder.button(
             text=Text.schedule_next_publication,
             callback_data=MenuCallbackFactory(action=Action.schedule_next_publication))
+        builder.button(
+            text=Text.back_to_main_menu,
+            callback_data=MenuCallbackFactory(action=Action.back_to_main_menu))
+        builder.adjust(1)
+        return builder.as_markup()
+
+
+class ScheduledPublicationsSectionMarkup:
+
+    @staticmethod
+    def choices_publication(category: CategoriesOfPublicationsEnum) -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+
+        match category:
+            case CategoriesOfPublicationsEnum.upcoming:
+                builder.button(
+                    text=Text.upcoming_publications,
+                    callback_data=MenuCallbackFactory(action=Action.upcoming_publications))
+            case CategoriesOfPublicationsEnum.overdue:
+                builder.button(
+                    text=Text.overdue_publications,
+                    callback_data=MenuCallbackFactory(action=Action.overdue_publications))
+            case CategoriesOfPublicationsEnum.both:
+                builder.button(
+                    text=Text.upcoming_publications,
+                    callback_data=MenuCallbackFactory(action=Action.upcoming_publications))
+                builder.button(
+                    text=Text.overdue_publications,
+                    callback_data=MenuCallbackFactory(action=Action.overdue_publications))
+
         builder.button(
             text=Text.back_to_main_menu,
             callback_data=MenuCallbackFactory(action=Action.back_to_main_menu))

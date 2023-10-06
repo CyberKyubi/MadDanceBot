@@ -12,3 +12,7 @@ class NewPublicationStates(StatesGroup):
     publication_text = State()
     editing_publication_text = State()
     schedule_publication = State()
+
+
+class ScheduledPublicationsStates(StatesGroup):
+    overdue_and_upcoming_publications = State()

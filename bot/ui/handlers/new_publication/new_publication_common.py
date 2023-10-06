@@ -19,7 +19,7 @@ from bot.mics.date_formatting import unix_timestamp_to_datetime, datetime_to_uni
 from bot.job_scheduler.publications import schedule_publication
 from bot.ui.res.strings import Strings
 from bot.ui.res.buttons import Action
-from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups, MenuCallbackFactory
+from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import NewPublicationStates
 from bot.ui.handlers.main_menu import cmd_start
 from .publication_date import new_publication_button
@@ -52,7 +52,7 @@ async def back_to_publication_time_button(query: CallbackQuery, state: FSMContex
     :param state:
     :return:
     """
-    await query.message.edit_text(Strings.publication_time, reply_markup=NewPublicationInlineMarkups.publication_time())
+    await query.message.edit_text(Strings.publication_time, reply_markup=NewPublicationSectionMarkups.publication_time())
     await state.set_state(NewPublicationStates.publication_time)
 
 
@@ -66,7 +66,7 @@ async def back_to_publication_title_button(query: CallbackQuery, state: FSMConte
     :param state:
     :return:
     """
-    await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationInlineMarkups.publication_text())
+    await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationSectionMarkups.publication_text())
     await state.set_state(NewPublicationStates.publication_title)
 
 
@@ -127,7 +127,7 @@ async def schedule_publication_button(
     await query.message.edit_text(model.publication_text)
     await query.message.answer(
         Strings.publication_info.format(title=model.publication_title, datetime=publication_datetime),
-        reply_markup=NewPublicationInlineMarkups.schedule_publication())
+        reply_markup=NewPublicationSectionMarkups.schedule_publication())
     await state.set_state(NewPublicationStates.schedule_publication)
 
     await redis.save_new_publication(NewPublicationModel())

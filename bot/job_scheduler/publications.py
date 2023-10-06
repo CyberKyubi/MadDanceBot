@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from bot.data.redis.models.publications import ScheduledPublicationModel
-from bot.data.db.queries import select_scheduled_publications
+from bot.data.db.queries import select_scheduled_publications_after_start
 from .jobs import send_publication_to_channel_job
 
 
@@ -58,7 +58,7 @@ async def schedule_pending_publications_after_start(
     :param db:
     :return:
     """
-    publications = await select_scheduled_publications(db)
+    publications = await select_scheduled_publications_after_start(db)
     if not publications:
         logging.info("Нет запланированных публикаций")
         return

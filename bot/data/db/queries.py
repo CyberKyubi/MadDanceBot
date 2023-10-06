@@ -115,9 +115,9 @@ async def update_publication_status(db_async_session: async_sessionmaker[AsyncSe
         await session.commit()
 
 
-async def select_scheduled_publications(db_async_session: async_sessionmaker[AsyncSession]) -> list[ScheduledPublicationModel] | None:
+async def select_scheduled_publications_after_start(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[ScheduledPublicationModel] | None:
     """
-    Забирает из бд запланированные публикации.
+    Функция вызывается после старта бота. Данные передаются в apscheduler.
     :param db_async_session:
     :return: При успехе возвращает список ScheduledPublicationModel.
     """
@@ -139,5 +139,5 @@ async def select_scheduled_publications(db_async_session: async_sessionmaker[Asy
                 Publications.publication_at.asc())
         )
         if query:
-            return [ScheduledPublicationModel(**model) for model in query.mappings().all()]
+            return tuple(ScheduledPublicationModel(**model) for model in query.mappings().all())
     return

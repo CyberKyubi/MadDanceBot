@@ -19,7 +19,7 @@ from bot.ui.middlewares import register_middlewares
 
 
 logging.getLogger(__name__)
-logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+# logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 dictConfig(log_config)
 
 

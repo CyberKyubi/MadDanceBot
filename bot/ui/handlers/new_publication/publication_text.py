@@ -5,7 +5,7 @@ from aiogram.types import Message
 from bot.data.redis.queries import RedisQueries
 from bot.mics.text_formatting import format_text
 from bot.ui.res.strings import Strings
-from bot.ui.keyboards.inline_markups import NewPublicationInlineMarkups
+from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups
 from bot.ui.states.state_machine import NewPublicationStates
 
 
@@ -26,7 +26,7 @@ async def publication_title_entry(message: Message, state: FSMContext, redis: Re
     model.publication_title = format_text(message, bolditalic=True)
     await redis.save_new_publication(model)
 
-    await message.answer(Strings.publication_text, reply_markup=NewPublicationInlineMarkups.publication_text())
+    await message.answer(Strings.publication_text, reply_markup=NewPublicationSectionMarkups.publication_text())
     await state.set_state(NewPublicationStates.publication_text)
 
 
@@ -47,7 +47,7 @@ async def publication_text_entry(message: Message, state: FSMContext, redis: Red
 
     await message.answer(
         Strings.editing_publication_text,
-        reply_markup=NewPublicationInlineMarkups.editing_publication_text())
+        reply_markup=NewPublicationSectionMarkups.editing_publication_text())
     await state.set_state(NewPublicationStates.editing_publication_text)
 
 
