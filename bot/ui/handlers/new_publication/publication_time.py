@@ -44,9 +44,8 @@ async def publication_time_hot_buttons(
         model.is_now = True
         await redis.save_new_publication(model)
 
-        await query.message.edit_text(Strings.publication_text,
-                                      reply_markup=NewPublicationInlineMarkups.publication_text())
-        await state.set_state(NewPublicationStates.publication_text)
+        await query.message.edit_text(Strings.publication_title, reply_markup=NewPublicationInlineMarkups.publication_text())
+        await state.set_state(NewPublicationStates.publication_title)
 
         logging.info(f"Пользователь | user_id = {query.from_user.id} | указал время = now")
     else:

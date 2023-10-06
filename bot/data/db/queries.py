@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime, timedelta
 import logging
 
+import pytz
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
@@ -42,8 +43,8 @@ async def select_upcoming_publications(db_async_session: async_sessionmaker[Asyn
     """
     logging.info("Выполнение запроса: select_upcoming_publications")
 
-    current_time = datetime.datetime.utcnow()
-    one_week = current_time + datetime.timedelta(weeks=1)
+    current_time = datetime.now(pytz.utc)
+    one_week = current_time + timedelta(weeks=1)
 
     async with db_async_session() as session:
         query = await session.execute(
@@ -74,7 +75,7 @@ async def select_overdue_unpublished_publications(db_async_session: async_sessio
     """
     logging.info("Выполнение запроса: select_overdue_unpublished_publications")
 
-    current_time = datetime.datetime.utcnow()
+    current_time = datetime.now(pytz.utc)
 
     async with db_async_session() as session:
         query = await session.execute(
@@ -122,7 +123,7 @@ async def select_scheduled_publications(db_async_session: async_sessionmaker[Asy
     """
     logging.info("Выполнение запроса: select_scheduled_publications")
 
-    current_time = datetime.datetime.utcnow()
+    current_time = datetime.now(pytz.utc)
 
     async with db_async_session() as session:
         query = await session.execute(

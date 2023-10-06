@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+import pytz
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -14,7 +15,7 @@ from bot.data.redis.queries import RedisQueries
 from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.data.redis.models.publications import ScheduledPublicationModel
 from bot.data.db.queries import insert_new_publication
-from bot.mics.date_formatting import unix_timestamp_to_datetime
+from bot.mics.date_formatting import unix_timestamp_to_datetime, datetime_to_unix_timestamp
 from bot.job_scheduler.publications import schedule_publication
 from bot.ui.res.strings import Strings
 from bot.ui.res.buttons import Action
@@ -109,6 +110,9 @@ async def schedule_publication_button(
     """
     model = await redis.get_new_publication()
 
+    if model.is_now:
+        model.publication_at = datetime_to_unix_timestamp(datetime.now(pytz.utc))
+
     publication_id = await insert_new_publication(db_async_session=db, new_publication=model)
     publication_text = f"{model.publication_title}\n\n{model.publication_text}"
     publication_at = datetime.utcfromtimestamp(model.publication_at)
@@ -117,7 +121,7 @@ async def schedule_publication_button(
         publication_id=publication_id,
         publication_text=publication_text,
         publication_at=publication_at)
-    await schedule_publication(query.bot, scheduler, db, schedule_publication_model)
+    await schedule_publication(query.bot, scheduler, db, schedule_publication_model, is_now=True)
 
     publication_datetime = unix_timestamp_to_datetime(model.publication_at)
     await query.message.edit_text(model.publication_text)
