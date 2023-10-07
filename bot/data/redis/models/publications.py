@@ -16,3 +16,7 @@ class ScheduledPublicationModel(BaseModel):
     publication_text: str
     publication_at: datetime
 
+
+class CategorizedPublicationsModel(BaseModel):
+    upcoming: tuple[PublicationModel] | None
+    overdue: tuple[PublicationModel] | None

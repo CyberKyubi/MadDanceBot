@@ -3,7 +3,7 @@ from enum import Enum
 from .emoji import Emoji
 
 
-class Text:
+class ButtonsText:
     back = f"{Emoji.back} Назад"
     back_to_main_menu = f"{Emoji.house} Назад в главное меню"
     cancel = f"{Emoji.x} Отменить"
@@ -26,7 +26,7 @@ class Text:
     overdue_publications = f"{Emoji.exclamation} Просроченные публикации"
 
 
-class Action(str, Enum):
+class Actions(str, Enum):
     back = "back"
     cancel = "cancel"
     back_to_main_menu = "back_to_main_menu"
@@ -49,7 +49,7 @@ class Action(str, Enum):
     overdue_publications = "overdue_publications"
 
 
-class Value:
+class Values:
     now = "now"
     twelve_clock = "12.0"
     fifteen_clock = "15.0"

@@ -11,7 +11,7 @@ from bot.data.redis.queries import RedisQueries
 from bot.mics.date_formatting import datetime_to_unix_timestamp, TIMEZONE
 from bot.mics.bot_exceptions import PastPublicationTimeError
 from bot.ui.res.strings import Strings, Errors
-from bot.ui.res.buttons import Action, Value
+from bot.ui.res.buttons import Actions, Values
 from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import NewPublicationStates
 
@@ -20,8 +20,8 @@ router = Router()
 
 @router.callback_query(
     MenuCallbackFactory.filter(
-        (F.action == Action.now) | (F.action == Action.twelve_clock) | (F.action == Action.fifteen_clock) |
-        (F.action == Action.eighteen_clock) | (F.action == Action.five_clock)
+        (F.action == Actions.now) | (F.action == Actions.twelve_clock) | (F.action == Actions.fifteen_clock) |
+        (F.action == Actions.eighteen_clock) | (F.action == Actions.five_clock)
     ),
     NewPublicationStates.publication_time)
 async def publication_time_hot_buttons(
@@ -39,7 +39,7 @@ async def publication_time_hot_buttons(
     :param redis:
     :return:
     """
-    if callback_data.value == Value.now:
+    if callback_data.value == Values.now:
         model = await redis.get_new_publication()
         model.is_now = True
         await redis.save_new_publication(model)

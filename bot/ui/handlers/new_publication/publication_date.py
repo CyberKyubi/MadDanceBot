@@ -10,7 +10,7 @@ from bot.data.redis.queries import RedisQueries
 from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.mics.date_formatting import TIMEZONE
 from bot.ui.res.strings import Strings, Errors
-from bot.ui.res.buttons import Action
+from bot.ui.res.buttons import Actions
 from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import MenuNavigationStates, NewPublicationStates
 
@@ -19,10 +19,10 @@ router = Router()
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.new_publication),
+    MenuCallbackFactory.filter(F.action == Actions.new_publication),
     MenuNavigationStates.main_menu)
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.schedule_next_publication),
+    MenuCallbackFactory.filter(F.action == Actions.schedule_next_publication),
     NewPublicationStates.schedule_publication)
 async def new_publication_button(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
     """
@@ -40,7 +40,7 @@ async def new_publication_button(query: CallbackQuery, state: FSMContext, redis:
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter((F.action == Action.today) | (F.action == Action.tomorrow)),
+    MenuCallbackFactory.filter((F.action == Actions.today) | (F.action == Actions.tomorrow)),
     NewPublicationStates.publication_date)
 async def publication_date_hot_buttons(
         query: CallbackQuery,
@@ -59,7 +59,7 @@ async def publication_date_hot_buttons(
     model = await redis.get_new_publication()
 
     raw_date = datetime.now()
-    if callback_data.action == Action.tomorrow:
+    if callback_data.action == Actions.tomorrow:
         raw_date = datetime.now() + timedelta(days=1)
     local_date = raw_date.astimezone(TIMEZONE).date()
 

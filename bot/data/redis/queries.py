@@ -5,10 +5,12 @@ from redis.asyncio.client import Redis
 import orjson
 
 from .models.new_publication import NewPublicationModel
+from .models.publications import CategorizedPublicationsModel
 
 
 class RedisKeys(int, Enum):
     new_publication = 0
+    categorized_publications = 1
 
 
 class RedisQueries:
@@ -20,6 +22,8 @@ class RedisQueries:
         match key:
             case RedisKeys.new_publication:
                 return ":".join(map(str, ("new_publication", self._user_id)))
+            case RedisKeys.categorized_publications:
+                return ":".join(map(str, ("categorized_publications", self._user_id)))
 
     async def _read(self, key: str) -> dict:
         raw_result = await self._redis.get(key)
@@ -42,4 +46,15 @@ class RedisQueries:
     async def save_new_publication(self, model: NewPublicationModel):
         await self._write(
             key=self._generate_key(RedisKeys.new_publication),
+            data=model.model_dump())
+
+    async def get_categorized_publications(self) -> CategorizedPublicationsModel:
+        model = await self._read(key=self._generate_key(RedisKeys.categorized_publications))
+        if not model:
+            return CategorizedPublicationsModel()
+        return CategorizedPublicationsModel(**model)
+
+    async def save_categorized_publications(self, model: CategorizedPublicationsModel):
+        await self._write(
+            key=self._generate_key(RedisKeys.categorized_publications),
             data=model.model_dump())

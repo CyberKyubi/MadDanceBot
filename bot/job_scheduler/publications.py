@@ -1,7 +1,5 @@
 import logging
-from datetime import datetime
 
-import pytz
 from aiogram import Bot
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from bot.data.redis.models.publications import ScheduledPublicationModel
 from bot.data.db.queries import select_scheduled_publications_after_start
+from bot.mics.date_formatting import datetime_utcnow
 from .jobs import send_publication_to_channel_job
 
 
@@ -32,10 +31,10 @@ async def schedule_publication(
         scheduler.add_job(
             send_publication_to_channel_job,
             trigger="date",
-            next_run_time=datetime.now(pytz.utc),
+            next_run_time=datetime_utcnow(),
             args=(bot, db, publication))
         logging.info(f"Запланирована публикация --> \n"
-                     f"Info: publication_id = {publication.publication_id} | publication_at = {datetime.now(pytz.utc)} UTC")
+                     f"Info: publication_id = {publication.publication_id} | publication_at = {datetime_utcnow()} UTC")
     else:
         scheduler.add_job(
             send_publication_to_channel_job,

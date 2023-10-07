@@ -1,23 +1,22 @@
 import logging
-from datetime import datetime, timedelta
 
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery
 from magic_filter import F
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.data.redis.queries import RedisQueries
-from bot.data.redis.models.new_publication import NewPublicationModel
-from bot.data.redis.models.publications import PublicationModel
+from bot.data.redis.models.publications import PublicationModel, CategorizedPublicationsModel
 from bot.data.db.queries import select_upcoming_publications, select_overdue_unpublished_publications
-from bot.mics.date_formatting import TIMEZONE
 from bot.mics.text_formatting import generate_text_list_of_publications
 from bot.ui.res.strings import Strings
-from bot.ui.res.buttons import Action
+from bot.ui.res.buttons import Actions
 from bot.ui.keyboards.inline_markups import (
-    ScheduledPublicationsSectionMarkup, MenuCallbackFactory, CategoriesOfPublicationsEnum)
+    ScheduledPublicationsSectionMarkup,
+    MenuCallbackFactory,
+    CategoriesOfPublicationsEnum)
 from bot.ui.states.state_machine import MenuNavigationStates, ScheduledPublicationsStates
 
 
@@ -25,11 +24,12 @@ router = Router()
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.scheduled_publications),
+    MenuCallbackFactory.filter(F.action == Actions.scheduled_publications),
     MenuNavigationStates.main_menu)
 async def find_upcoming_or_overdue_publications(
         query: CallbackQuery,
         state: FSMContext,
+        redis: RedisQueries,
         db: async_sessionmaker[AsyncSession],
 ):
     """
@@ -43,6 +43,7 @@ async def find_upcoming_or_overdue_publications(
     - Если доступна только одна категория: создает кнопку только для этой группы.
     :param query:
     :param state:
+    :param redis:
     :param db:
     :return:
     """
@@ -53,6 +54,11 @@ async def find_upcoming_or_overdue_publications(
     if not text_list:
         await query.answer(Strings.no_upcoming_publications)
         return
+
+    await redis.save_categorized_publications(
+        CategorizedPublicationsModel(
+            upcoming=upcoming_publications,
+            overdue=overdue_publications))
 
     reply_markup_mapper = {
         ("upcoming", ): ScheduledPublicationsSectionMarkup.choices_publication(
@@ -72,18 +78,20 @@ async def find_upcoming_or_overdue_publications(
 def build_response(upcoming: tuple[PublicationModel] | None, overdue: tuple[PublicationModel] | None) -> tuple[str, list[str]]:
     """
     Собирает текст и кнопки в зависимости от переданных аргументов.
+    Действует лимит на максимальное кол-во выводимых элементов.
     :param upcoming:
     :param overdue:
     :return:
     """
     text_parts = []
     markup_types = []
+    limit = 6
 
     if upcoming:
-        text_parts.append(collect_text_list_of_publications(upcoming, category=CategoriesOfPublicationsEnum.upcoming))
+        text_parts.append(collect_text_list_of_publications(upcoming[:limit], category=CategoriesOfPublicationsEnum.upcoming))
         markup_types.append('upcoming')
     if overdue:
-        text_parts.append(collect_text_list_of_publications(overdue, category=CategoriesOfPublicationsEnum.overdue))
+        text_parts.append(collect_text_list_of_publications(overdue[:limit], category=CategoriesOfPublicationsEnum.overdue))
         markup_types.append('overdue')
 
     return "".join(text_parts), markup_types

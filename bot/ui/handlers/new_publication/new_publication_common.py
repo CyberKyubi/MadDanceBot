@@ -1,7 +1,5 @@
 import logging
-from datetime import datetime
 
-import pytz
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -15,10 +13,14 @@ from bot.data.redis.queries import RedisQueries
 from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.data.redis.models.publications import ScheduledPublicationModel
 from bot.data.db.queries import insert_new_publication
-from bot.mics.date_formatting import unix_timestamp_to_datetime, datetime_to_unix_timestamp
+from bot.mics.date_formatting import (
+    unix_timestamp_to_local_str_datetime,
+    unix_timestamp_to_datetime,
+    datetime_to_unix_timestamp,
+    datetime_utcnow)
 from bot.job_scheduler.publications import schedule_publication
 from bot.ui.res.strings import Strings
-from bot.ui.res.buttons import Action
+from bot.ui.res.buttons import Actions
 from bot.ui.keyboards.inline_markups import NewPublicationSectionMarkups, MenuCallbackFactory
 from bot.ui.states.state_machine import NewPublicationStates
 from bot.ui.handlers.main_menu import cmd_start
@@ -29,7 +31,7 @@ router = Router()
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.back),
+    MenuCallbackFactory.filter(F.action == Actions.back),
     NewPublicationStates.publication_time)
 async def back_to_new_publication_button(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
     """
@@ -43,7 +45,7 @@ async def back_to_new_publication_button(query: CallbackQuery, state: FSMContext
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.back),
+    MenuCallbackFactory.filter(F.action == Actions.back),
     NewPublicationStates.publication_title)
 async def back_to_publication_time_button(query: CallbackQuery, state: FSMContext) -> None:
     """
@@ -57,7 +59,7 @@ async def back_to_publication_time_button(query: CallbackQuery, state: FSMContex
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.back),
+    MenuCallbackFactory.filter(F.action == Actions.back),
     NewPublicationStates.publication_text)
 async def back_to_publication_title_button(query: CallbackQuery, state: FSMContext) -> None:
     """
@@ -71,7 +73,7 @@ async def back_to_publication_title_button(query: CallbackQuery, state: FSMConte
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.cancel),
+    MenuCallbackFactory.filter(F.action == Actions.cancel),
     StateFilter(NewPublicationStates))
 async def cancel_button(query: CallbackQuery, state: FSMContext, redis: RedisQueries) -> None:
     """
@@ -90,7 +92,7 @@ async def cancel_button(query: CallbackQuery, state: FSMContext, redis: RedisQue
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.schedule_publication),
+    MenuCallbackFactory.filter(F.action == Actions.schedule_publication),
     NewPublicationStates.editing_publication_text)
 async def schedule_publication_button(
         query: CallbackQuery,
@@ -111,19 +113,19 @@ async def schedule_publication_button(
     model = await redis.get_new_publication()
 
     if model.is_now:
-        model.publication_at = datetime_to_unix_timestamp(datetime.now(pytz.utc))
+        model.publication_at = datetime_to_unix_timestamp(datetime_utcnow())
 
     publication_id = await insert_new_publication(db_async_session=db, new_publication=model)
     publication_text = f"{model.publication_title}\n\n{model.publication_text}"
-    publication_at = datetime.utcfromtimestamp(model.publication_at)
+    publication_at = unix_timestamp_to_datetime(model.publication_at)
 
     schedule_publication_model = ScheduledPublicationModel(
         publication_id=publication_id,
         publication_text=publication_text,
         publication_at=publication_at)
-    await schedule_publication(query.bot, scheduler, db, schedule_publication_model, is_now=True)
+    await schedule_publication(query.bot, scheduler, db, schedule_publication_model, is_now=model.is_now)
 
-    publication_datetime = unix_timestamp_to_datetime(model.publication_at)
+    publication_datetime = unix_timestamp_to_local_str_datetime(model.publication_at)
     await query.message.edit_text(model.publication_text)
     await query.message.answer(
         Strings.publication_info.format(title=model.publication_title, datetime=publication_datetime),

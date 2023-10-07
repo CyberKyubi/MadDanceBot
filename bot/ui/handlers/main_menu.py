@@ -4,7 +4,7 @@ from magic_filter import F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from bot.ui.res.buttons import Action
+from bot.ui.res.buttons import Actions
 from bot.ui.res.strings import Strings
 from bot.ui.keyboards.inline_markups import MenuCallbackFactory, MainMenuMarkups
 from bot.ui.states.state_machine import MenuNavigationStates, NewPublicationStates, ScheduledPublicationsStates
@@ -20,7 +20,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
 
 @router.callback_query(
-    MenuCallbackFactory.filter(F.action == Action.back_to_main_menu),
+    MenuCallbackFactory.filter(F.action == Actions.back_to_main_menu),
     StateFilter(NewPublicationStates, ScheduledPublicationsStates))
 async def back_to_main_menu_button(query: CallbackQuery, state: FSMContext) -> None:
     await query.message.edit_text(Strings.main_menu, reply_markup=MainMenuMarkups.main_menu())

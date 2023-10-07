@@ -2,7 +2,8 @@ from aiogram.types import Message
 
 from bot.data.redis.models.publications import PublicationModel
 from bot.ui.res.strings import Strings
-from bot.mics.date_formatting import unix_timestamp_to_datetime
+from bot.mics.date_formatting import unix_timestamp_to_local_str_datetime
+
 
 def format_text_with_html_entities(message: Message) -> str:
     """
@@ -71,18 +72,27 @@ def format_text(message: Message, bolditalic: bool = False) -> str:
 
 
 def generate_text_list_of_publications(publications: tuple[PublicationModel]):
+    """
+    Генерирует текстовый пронумерованный список из публикаций.
+    :param publications:
+    :return:
+    """
     texts = [
         Strings.elem_of_list_of_publications.format(
             roman_num=roman(num),
             publication_title=publication.publication_title,
-            publication_at=unix_timestamp_to_datetime(publication.publication_at))
+            publication_at=unix_timestamp_to_local_str_datetime(publication.publication_at))
         for num, publication in enumerate(publications, 1)
     ]
     return "".join(texts)
 
 
 def roman(num: int) -> str:
-
+    """
+    Переводит арабские цифры в римские.
+    :param num:
+    :return:
+    """
     chlist = "VXLCDM"
     rev = [int(ch) for ch in reversed(str(num))]
     chlist = ["I"] + [chlist[i % len(chlist)] + "\u0304" * (i // len(chlist)) for i in range(0, len(rev) * 2)]

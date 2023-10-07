@@ -1,16 +1,15 @@
-from datetime import datetime, timedelta
 import logging
 
-import pytz
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy import select, update, func, and_
 
-from .models import Publications
-from .mappers import map_to_publication_model
 from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.data.redis.models.publications import PublicationModel, ScheduledPublicationModel
+from bot.mics.date_formatting import datetime_utcnow
+from .models import Publications
+from .mappers import map_to_publication_model
 
 
 async def insert_new_publication(db_async_session: async_sessionmaker[AsyncSession], new_publication: NewPublicationModel) -> int:
@@ -37,14 +36,13 @@ async def insert_new_publication(db_async_session: async_sessionmaker[AsyncSessi
 
 async def select_upcoming_publications(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[PublicationModel] | None:
     """
-    Забирает публикации по возрастанию даты, которые будут опубликованы в течение 1 недели.
+    Забирает все будущие публикации по возрастанию даты.
     :param db_async_session:
     :return: При успехе возвращает картеж из PublicationModel.
     """
     logging.info("Выполнение запроса: select_upcoming_publications")
 
-    current_time = datetime.now(pytz.utc)
-    one_week = current_time + timedelta(weeks=1)
+    current_time = datetime_utcnow()
 
     async with db_async_session() as session:
         query = await session.execute(
@@ -57,8 +55,7 @@ async def select_upcoming_publications(db_async_session: async_sessionmaker[Asyn
             .where(
                 and_(
                     Publications.is_published.is_(False),
-                    current_time < Publications.publication_at,
-                    Publications.publication_at < one_week))
+                    current_time < Publications.publication_at))
             .order_by(
                 Publications.publication_at.asc())
         )
@@ -75,7 +72,7 @@ async def select_overdue_unpublished_publications(db_async_session: async_sessio
     """
     logging.info("Выполнение запроса: select_overdue_unpublished_publications")
 
-    current_time = datetime.now(pytz.utc)
+    current_time = datetime_utcnow()
 
     async with db_async_session() as session:
         query = await session.execute(
@@ -123,7 +120,7 @@ async def select_scheduled_publications_after_start(db_async_session: async_sess
     """
     logging.info("Выполнение запроса: select_scheduled_publications")
 
-    current_time = datetime.now(pytz.utc)
+    current_time = datetime_utcnow()
 
     async with db_async_session() as session:
         query = await session.execute(
