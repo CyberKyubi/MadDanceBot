@@ -11,12 +11,12 @@ class PublicationModel(BaseModel):
     is_published: bool
 
 
+class CategorizedPublicationsModel(BaseModel):
+    upcoming: tuple[PublicationModel, ...] | None
+    overdue: tuple[PublicationModel, ...] | None
+
+
 class ScheduledPublicationModel(BaseModel):
     publication_id: int
     publication_text: str
     publication_at: datetime
-
-
-class CategorizedPublicationsModel(BaseModel):
-    upcoming: tuple[PublicationModel] | None
-    overdue: tuple[PublicationModel] | None

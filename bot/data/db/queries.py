@@ -34,7 +34,7 @@ async def insert_new_publication(db_async_session: async_sessionmaker[AsyncSessi
         return query.one()[0]
 
 
-async def select_upcoming_publications(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[PublicationModel] | None:
+async def select_upcoming_publications(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[PublicationModel, ...] | None:
     """
     Забирает все будущие публикации по возрастанию даты.
     :param db_async_session:
@@ -64,7 +64,7 @@ async def select_upcoming_publications(db_async_session: async_sessionmaker[Asyn
     return
 
 
-async def select_overdue_unpublished_publications(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[PublicationModel] | None:
+async def select_overdue_unpublished_publications(db_async_session: async_sessionmaker[AsyncSession]) -> tuple[PublicationModel, ...] | None:
     """
     Забирает просроченные публикации по возрастанию даты.
     :param db_async_session:

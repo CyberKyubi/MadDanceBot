@@ -50,7 +50,7 @@ async def find_upcoming_or_overdue_publications(
     upcoming_publications = await select_upcoming_publications(db)
     overdue_publications = await select_overdue_unpublished_publications(db)
 
-    text_list, markup_types = build_response(upcoming_publications, overdue_publications)
+    text_list, markup_types = _build_response(upcoming_publications, overdue_publications)
     if not text_list:
         await query.answer(Strings.no_upcoming_publications)
         return
@@ -75,7 +75,7 @@ async def find_upcoming_or_overdue_publications(
     await state.set_state(ScheduledPublicationsStates.overdue_and_upcoming_publications)
 
 
-def build_response(upcoming: tuple[PublicationModel] | None, overdue: tuple[PublicationModel] | None) -> tuple[str, list[str]]:
+def _build_response(upcoming: tuple[PublicationModel, ...] | None, overdue: tuple[PublicationModel, ...] | None) -> tuple[str, list[str]]:
     """
     Собирает текст и кнопки в зависимости от переданных аргументов.
     Действует лимит на максимальное кол-во выводимых элементов.
@@ -88,16 +88,16 @@ def build_response(upcoming: tuple[PublicationModel] | None, overdue: tuple[Publ
     limit = 6
 
     if upcoming:
-        text_parts.append(collect_text_list_of_publications(upcoming[:limit], category=CategoriesOfPublicationsEnum.upcoming))
+        text_parts.append(_collect_text_list_of_publications(upcoming[:limit], category=CategoriesOfPublicationsEnum.upcoming))
         markup_types.append('upcoming')
     if overdue:
-        text_parts.append(collect_text_list_of_publications(overdue[:limit], category=CategoriesOfPublicationsEnum.overdue))
+        text_parts.append(_collect_text_list_of_publications(overdue[:limit], category=CategoriesOfPublicationsEnum.overdue))
         markup_types.append('overdue')
 
     return "".join(text_parts), markup_types
 
 
-def collect_text_list_of_publications(publications: tuple[PublicationModel], category: CategoriesOfPublicationsEnum) -> str:
+def _collect_text_list_of_publications(publications: tuple[PublicationModel, ...], category: CategoriesOfPublicationsEnum) -> str:
     """
     Собирает текстовый список публикаций в зависимости от категории.
     :param publications:

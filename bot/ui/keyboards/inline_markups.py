@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -5,6 +6,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from bot.data.redis.models.publications_pages import PagesConfigModel
 from bot.ui.res.buttons import ButtonsText, Actions, Values
 
 
@@ -17,6 +19,23 @@ class CategoriesOfPublicationsEnum(int, Enum):
     upcoming = 0
     overdue = 1
     both = 2
+
+
+@dataclass
+class BackButtonArgs:
+    text: str
+    action: str
+
+
+@dataclass
+class NavigationBackButton:
+    @staticmethod
+    def back_to_section() -> BackButtonArgs:
+        return BackButtonArgs(text=ButtonsText.back_to_section, action=Actions.back_to_section)
+
+    @staticmethod
+    def back_to_month() -> BackButtonArgs:
+        return BackButtonArgs(text=ButtonsText.back_to_month_selection, action=Actions.back_to_month_selection)
 
 
 class MainMenuMarkups:
@@ -134,3 +153,109 @@ class ScheduledPublicationsSectionMarkup:
             callback_data=MenuCallbackFactory(action=Actions.back_to_main_menu))
         builder.adjust(1)
         return builder.as_markup()
+
+
+class PublicationPeriodMarkup:
+
+    def build_month_buttons(self, months_name: tuple[str], back_button_args: BackButtonArgs) -> InlineKeyboardMarkup:
+        """
+
+        :param months_name:
+        :param back_button_args:
+        :return:
+        """
+        builder = InlineKeyboardBuilder()
+
+        for month_name in months_name:
+            builder.button(text=month_name, callback_data=MenuCallbackFactory(action=Actions.month_selection, value=month_name))
+
+        builder.adjust(3)
+        builder.attach(self._build_last_back_button(back_button_args))
+        return builder.as_markup()
+
+    def build_week_buttons(self, week_ranges: tuple[str], back_button_args: BackButtonArgs) -> InlineKeyboardMarkup:
+        """
+
+        :param week_ranges:
+        :param back_button_args:
+        :return:
+        """
+        builder = InlineKeyboardBuilder()
+
+        for week in week_ranges:
+            builder.button(text=week, callback_data=MenuCallbackFactory(action=Actions.week_selection, value=week))
+
+        builder.adjust(2)
+        builder.attach(self._build_last_back_button(back_button_args))
+        return builder.as_markup()
+
+    @staticmethod
+    def _build_last_back_button(args: BackButtonArgs) -> InlineKeyboardBuilder:
+        """
+
+        :param args:
+        :return:
+        """
+        back_builder = InlineKeyboardBuilder()
+        back_builder.button(text=args.text, callback_data=MenuCallbackFactory(action=args.action))
+        back_builder.adjust(1)
+        return back_builder
+
+
+class PublicationsPagesMarkup:
+    def __init__(self, pages_config: PagesConfigModel):
+        self.pages_config = pages_config
+
+    def upcoming_publications(self) -> InlineKeyboardMarkup:
+        builder = InlineKeyboardBuilder()
+        builder_base_buttons = self._build_base_pages_buttons()
+        builder.attach(builder_base_buttons)
+
+        builder.button(text=ButtonsText.editing,
+                       callback_data=MenuCallbackFactory(action=Actions.editing))
+        builder.button(text=ButtonsText.back_to_week_selection,
+                       callback_data=MenuCallbackFactory(action=Actions.back_to_week_selection))
+        builder.button(text=ButtonsText.back_to_main_menu,
+                       callback_data=MenuCallbackFactory(action=Actions.back_to_main_menu))
+
+        builder.adjust(3, 1)
+        return builder.as_markup()
+
+    def overdue_publications(self):
+        builder = InlineKeyboardBuilder()
+        builder_base_buttons = self._build_base_pages_buttons()
+        builder.attach(builder_base_buttons)
+
+        builder.button(text=ButtonsText.update,
+                       callback_data=MenuCallbackFactory(action=Actions.update))
+        builder.button(text=ButtonsText.back_to_section,
+                       callback_data=MenuCallbackFactory(action=Actions.back_to_section))
+        builder.button(text=ButtonsText.back_to_main_menu,
+                       callback_data=MenuCallbackFactory(action=Actions.back_to_main_menu))
+
+        builder.adjust(3, 1)
+        return builder.as_markup()
+
+    def published(self):
+        builder = InlineKeyboardBuilder()
+        builder_base_buttons = self._build_base_pages_buttons()
+        builder.attach(builder_base_buttons)
+
+        builder.button(text=ButtonsText.back_to_main_menu,
+                       callback_data=MenuCallbackFactory(action=Actions.back_to_main_menu))
+
+        builder.adjust(3, 1)
+        return builder.as_markup()
+
+    def _build_base_pages_buttons(self) -> InlineKeyboardBuilder:
+        builder = InlineKeyboardBuilder()
+
+        builder.button(text=ButtonsText.arrow_backward, callback_data=MenuCallbackFactory(action=Actions.arrow_backward))
+        builder.button(
+            text=ButtonsText.current_page.format(
+                current=self.pages_config.current_page_num,
+                max=self.pages_config.max_pages),
+            callback_data=MenuCallbackFactory(action=Actions.none))
+        builder.button(text=ButtonsText.arrow_forward, callback_data=MenuCallbackFactory(action=Actions.arrow_forward))
+
+        return builder

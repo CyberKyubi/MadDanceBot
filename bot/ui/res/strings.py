@@ -15,16 +15,25 @@ class Strings:
     publication_canceled = f"{Emoji.x} Заполнение новой публикации было отменено"
     publication_info = (f"{Emoji.book} Публикация запланирована:\n\n"
                         "{title}\n"
-                        "   — <i>{datetime}</i>")
+                        "{publication_date}")
 
     section_of_scheduled_publication = f"{Emoji.calendar} Раздел <b><i>\"Запланированные публикации\"</i></b>\n\n\n"
-    list_of_upcoming_publications = (f"{Emoji.book} Ближайшие на 7 дней:\n"
+    list_of_upcoming_publications = (f"{Emoji.book} Будущие:\n\n"  # 
                                      "{}\n")
-    list_of_overdue_publications = (f"{Emoji.exclamation} Просроченные:\n"
+    list_of_overdue_publications = (f"{Emoji.exclamation} Просроченные:\n\n"  # {Emoji.exclamation}
                                     "{}\n\n")
     elem_of_list_of_publications = ("{roman_num}.  {publication_title}\n"
-                                    "     <b>— <i>{publication_at}</i></b>\n\n")
+                                    "{publication_at}\n\n")
     no_upcoming_publications = f"{Emoji.book} Ближайших публикаций нет."
+
+    month_gap = "Даты публикаций разделены по месяцам, выбери нужный месяц:"
+    week_range = "Даты публикаций разбиты на недели, выбери нужную неделю:"
+
+    publication_page = ("{title}\n\n"
+                        "{text}\n\n"
+                        "<b>———✂️———</b>\n\n"
+                        "Дата публикации:\n"
+                        "{date}")
 
 
 class Errors:

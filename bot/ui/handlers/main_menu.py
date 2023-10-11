@@ -7,7 +7,11 @@ from aiogram.types import Message, CallbackQuery
 from bot.ui.res.buttons import Actions
 from bot.ui.res.strings import Strings
 from bot.ui.keyboards.inline_markups import MenuCallbackFactory, MainMenuMarkups
-from bot.ui.states.state_machine import MenuNavigationStates, NewPublicationStates, ScheduledPublicationsStates
+from bot.ui.states.state_machine import (
+    MenuNavigationStates,
+    NewPublicationStates,
+    ScheduledPublicationsStates,
+    PublicationsPagesStates)
 
 
 router = Router()
@@ -21,7 +25,11 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
 @router.callback_query(
     MenuCallbackFactory.filter(F.action == Actions.back_to_main_menu),
-    StateFilter(NewPublicationStates, ScheduledPublicationsStates))
+    StateFilter(
+        NewPublicationStates,
+        ScheduledPublicationsStates,
+        PublicationsPagesStates
+    ))
 async def back_to_main_menu_button(query: CallbackQuery, state: FSMContext) -> None:
     await query.message.edit_text(Strings.main_menu, reply_markup=MainMenuMarkups.main_menu())
     await state.set_state(MenuNavigationStates.main_menu)

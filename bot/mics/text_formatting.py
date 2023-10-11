@@ -2,7 +2,7 @@ from aiogram.types import Message
 
 from bot.data.redis.models.publications import PublicationModel
 from bot.ui.res.strings import Strings
-from bot.mics.date_formatting import unix_timestamp_to_local_str_datetime
+from bot.mics.date_formatting import unix_timestamp_to_beautiful_local_date
 
 
 def format_text_with_html_entities(message: Message) -> str:
@@ -15,7 +15,10 @@ def format_text_with_html_entities(message: Message) -> str:
         "italic": "<i>{}</i>",
         "bold": "<b>{}</b>",
         "code": "<code>{}</code>",
-        "text_link": "<a href={}>{}</a>"
+        "text_link": "<a href={}>{}</a>",
+        "underline": "<u>{}</u>",
+        "strikethrough": "<s>{}</s>",
+
     }
 
     text = message.text
@@ -71,7 +74,7 @@ def format_text(message: Message, bolditalic: bool = False) -> str:
     return text
 
 
-def generate_text_list_of_publications(publications: tuple[PublicationModel]):
+def generate_text_list_of_publications(publications: tuple[PublicationModel, ...]):
     """
     Генерирует текстовый пронумерованный список из публикаций.
     :param publications:
@@ -81,7 +84,7 @@ def generate_text_list_of_publications(publications: tuple[PublicationModel]):
         Strings.elem_of_list_of_publications.format(
             roman_num=roman(num),
             publication_title=publication.publication_title,
-            publication_at=unix_timestamp_to_local_str_datetime(publication.publication_at))
+            publication_at=unix_timestamp_to_beautiful_local_date(publication.publication_at))
         for num, publication in enumerate(publications, 1)
     ]
     return "".join(texts)
@@ -109,3 +112,16 @@ def roman(num: int) -> str:
 
     return "".join(reversed([period(rev[i], chlist[i * 2 + 2], chlist[i * 2 + 1], chlist[i * 2])
                             for i in range(0, len(rev))]))
+
+
+def format_publication_page_text(model: PublicationModel) -> str:
+    """
+
+    :param model:
+    :return:
+    """
+    return Strings.publication_page.format(
+        title=model.publication_title,
+        text=model.publication_text,
+        date=unix_timestamp_to_beautiful_local_date(model.publication_at)
+    )

@@ -14,7 +14,7 @@ from bot.data.redis.models.new_publication import NewPublicationModel
 from bot.data.redis.models.publications import ScheduledPublicationModel
 from bot.data.db.queries import insert_new_publication
 from bot.mics.date_formatting import (
-    unix_timestamp_to_local_str_datetime,
+    unix_timestamp_to_beautiful_local_date,
     unix_timestamp_to_datetime,
     datetime_to_unix_timestamp,
     datetime_utcnow)
@@ -125,10 +125,10 @@ async def schedule_publication_button(
         publication_at=publication_at)
     await schedule_publication(query.bot, scheduler, db, schedule_publication_model, is_now=model.is_now)
 
-    publication_datetime = unix_timestamp_to_local_str_datetime(model.publication_at)
+    publication_date = unix_timestamp_to_beautiful_local_date(model.publication_at)
     await query.message.edit_text(model.publication_text)
     await query.message.answer(
-        Strings.publication_info.format(title=model.publication_title, datetime=publication_datetime),
+        Strings.publication_info.format(title=model.publication_title, publication_date=publication_date),
         reply_markup=NewPublicationSectionMarkups.schedule_publication())
     await state.set_state(NewPublicationStates.schedule_publication)
 

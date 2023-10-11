@@ -16,3 +16,9 @@ class NewPublicationStates(StatesGroup):
 
 class ScheduledPublicationsStates(StatesGroup):
     overdue_and_upcoming_publications = State()
+    month_selection = State()
+    week_selection = State()
+
+
+class PublicationsPagesStates(StatesGroup):
+    publication_page = State()
